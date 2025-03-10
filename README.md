@@ -11,7 +11,7 @@ Only supports Linux and single monitor setups.
 - Make sure `ddcutil` is installed and your user has permission to execute it without `sudo`.
 
 ## Installation
-Copy the `mqttmonitorcontrol` directory to `/opt/`. The `main.py` file is your entry point. You can edit the configuration file to set your MQTT broker address, port, username, password, and topic.
+Copy the `mqttmonitorcontrol` directory to `/opt/`. The `main.py` file is your entry point. You can edit the configuration file to set your MQTT broker address, port, username, password, and display state polling interval.
 
 Install this script as a systemd service to run on boot:
 ```ini
