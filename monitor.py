@@ -1,6 +1,8 @@
 import re
 import subprocess
 
+# TODO: add support for volume control
+# TODO: add support for temperature control
 
 def set_monitor_brightness(brightness):
     try:
@@ -31,7 +33,7 @@ def toggle_monitor_power_state(power):
             subprocess.run(["ddcutil", "setvcp", "D6", "0x01"], check=True)
             print("Monitor powered ON")
         else:
-            subprocess.run(["ddcutil", "setvcp", "D6", "0x05"], check=True)
+            subprocess.run(["ddcutil", "setvcp", "D6", "0x04"], check=True)
             print("Monitor powered OFF")
     except subprocess.CalledProcessError as e:
         print(f"Error setting power state: {e}")

@@ -14,7 +14,26 @@ MQTT_USERNAME = os.getenv("MQTT_USERNAME")
 MQTT_PASSWORD = os.getenv("MQTT_PASSWORD")
 MQTT_BROKER_ADDRESS = os.getenv("MQTT_BROKER_ADDRESS", "localhost")
 MQTT_BROKER_PORT = int(os.getenv("MQTT_BROKER_PORT", 1883))
+DISPLAY_POLL_INTERVAL = int(os.getenv("DISPLAY_POLL_INTERVAL", 60))
 
+def publish_current_states(client):
+    # Get current monitor brightness and publish it
+    current_brightness = monitor.get_monitor_brightness(log=False)
+    if current_brightness is not None:
+        client.publish(topics.BRIGHTNESS_STATE_TOPIC, str(current_brightness))
+
+    # Get current monitor input state and set effect
+    current_input = monitor.get_current_monitor_input(log=False)
+    if current_input is not None:
+        client.publish(topics.EFFECTS_STATE_TOPIC, current_input)
+
+    # Get current monitor power state and publish it
+    current_power = monitor.get_monitor_power_state(log=False)
+    if current_power is not None:
+        if current_power == "0x01":
+            client.publish(topics.BRIGHTNESS_STATE_TOPIC, "ON")
+        else:
+            client.publish(topics.BRIGHTNESS_STATE_TOPIC, "OFF")
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code: %d" % rc)
@@ -23,22 +42,7 @@ def on_connect(client, userdata, flags, rc):
     client.publish(topics.MONITOR_CONFIG_TOPIC, json.dumps(
         discovery.LIGHT_DISCOVERY), retain=True)
 
-    # Get current monitor brightness and publish it
-    current_brightness = monitor.get_monitor_brightness()
-    if current_brightness is not None:
-        client.publish(topics.BRIGHTNESS_STATE_TOPIC, str(current_brightness))
-
-    # Get current monitor input state and set effect
-    current_input = monitor.get_current_monitor_input()
-    if current_input is not None:
-        client.publish(topics.EFFECTS_STATE_TOPIC, current_input)
-
-    current_power = monitor.get_monitor_power_state()
-    if current_power is not None:
-        if current_power == "0x01":
-            client.publish(topics.BRIGHTNESS_STATE_TOPIC, "ON")
-        elif current_power == "0x05":
-            client.publish(topics.BRIGHTNESS_STATE_TOPIC, "OFF")
+    publish_current_states(client)
 
 
 def on_message(client, userdata, msg):
@@ -72,21 +76,10 @@ def on_message(client, userdata, msg):
             print(f"Invalid effect: {effect}")
 
 
-# def poll_monitor_states(client):
-#     while True:
-#         # Get current monitor brightness and publish it
-#         current_brightness = monitor.get_monitor_brightness(log=False)
-#         if current_brightness is not None:
-#             client.publish(topics.BRIGHTNESS_STATE_TOPIC,
-#                            str(current_brightness))
-
-#         # Get current monitor input state and publish it
-#         current_input = monitor.get_current_monitor_input(log=False)
-#         if current_input is not None:
-#             client.publish(topics.EFFECTS_STATE_TOPIC, current_input)
-
-#         # Poll every 60 seconds (adjust as needed)
-#         time.sleep(60)
+def poll_monitor_current_states(client):
+    while True:
+        publish_current_states(client)
+        time.sleep(DISPLAY_POLL_INTERVAL)
 
 
 def init():
@@ -108,10 +101,10 @@ def init():
         exit(1)
 
     # Start the polling thread
-    # polling_thread = threading.Thread(
-    #     target=poll_monitor_states, args=(client,))
-    # polling_thread.daemon = True
-    # polling_thread.start()
+    polling_thread = threading.Thread(
+        target=poll_monitor_current_states, args=(client,))
+    polling_thread.daemon = True
+    polling_thread.start()
 
     # Start the network loop to handle messages and keep the client alive
     client.loop_forever()
