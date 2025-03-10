@@ -2,10 +2,12 @@ This script allows you to control your monitor's brightness, input, and power st
 
 ![image](screenshot.png)
 
+The monitor can be controlled even if it is not the active input on the computer. This is useful for controllssing a monitor that is connected to a different device, such as a Raspberry Pi or a game console.
+
 Only supports Linux and single monitor setups.
 
 ## Pre-requisites
-- Install the `paho-mqtt` library: `pip3 install paho-mqtt`
+- Install the `paho-mqtt` library. `pip3 install paho-mqtt`
 - Make sure `ddcutil` is installed and your user has permission to execute it without `sudo`.
 
 ## Installation
@@ -21,8 +23,8 @@ After=network.target
 Type=simple
 ExecStart=/usr/bin/python3 /opt/mqttmonitorcontrol/main.py
 WorkingDirectory=/opt/mqttmonitorcontrol
-User=cswitenky
-Group=cswitenky
+User=<your_username>
+Group=<your_group>
 Restart=always
 StandardOutput=journal
 StandardError=journal
@@ -30,3 +32,27 @@ StandardError=journal
 [Install]
 WantedBy=multi-user.target
 ```
+
+```bash
+# Copy and paste the service file to the systemd directory
+`vim /etc/systemd/system/monitorcontrol.service`
+
+# Reload systemd to recognize the new service
+sudo systemctl daemon-reload
+
+# Enable the service to start on boot
+sudo systemctl enable monitorcontrol
+
+# Start the service
+sudo systemctl start monitorcontrol
+
+# Check the status of the service
+sudo systemctl status monitorcontrol
+```
+
+Ensure the following:
+- Make sure you replace `<your_username>` and `<your_group>` with your actual username and group.
+- Ensure `python3` is installed and the path to it is correct.
+- Make sure the `WorkingDirectory` points to the directory where `main.py` is located.
+
+
