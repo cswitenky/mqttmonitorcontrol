@@ -30,30 +30,3 @@ StandardError=journal
 [Install]
 WantedBy=multi-user.target
 ```
-- Make sure `ddcutil` is installed and your user has permission to execute without `sudo`.
-
-Copy `mqttmonitorcontrol` to `/opt/` and the `main.py` is your point of entry. You can edit the configuration file to set your MQTT broker address, port, username, password, and topic.
-
-Install this script as a systemd service to run on boot.
-```ini
-[Unit]
-Description=MQTT Monitor Control
-After=network.target
-
-[Service]
-Type=simple
-ExecStart=/usr/bin/python3 /opt/mqttmonitorcontrol/main.py
-WorkingDirectory=/opt/mqttmonitorcontrol
-User=cswitenky
-Group=cswitenky
-Restart=always
-StandardOutput=journal
-StandardError=journal
-
-[Install]
-WantedBy=multi-user.target
-```
-
-## Future Improvements
-- Add support for multiple monitors.
-- Add support for volume control
