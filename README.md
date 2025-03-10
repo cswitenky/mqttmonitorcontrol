@@ -2,7 +2,7 @@ This script allows you to control your monitor's brightness, input, and power st
 
 ![image](screenshot.png)
 
-The monitor can be controlled even if it is not the active input on the computer. This is useful for controllssing a monitor that is connected to a different device, such as a Raspberry Pi or a game console.
+The monitor can be controlled even if it is not the active input on the computer. This is useful for controlling a monitor that is connected to a different device, such as a Raspberry Pi or a game console.
 
 Only supports Linux and single monitor setups.
 
